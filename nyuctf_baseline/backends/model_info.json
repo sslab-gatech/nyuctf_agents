@@ -1,34 +1,9 @@
 {
     "openai": {
-        "gpt-3.5-turbo-1106": {
-            "max_context": 16385,
-            "cost_per_input_token": 1.5e-06,
-            "cost_per_output_token": 2e-06
-        },
-        "gpt-4-1106-preview": {
-            "max_context": 128000,
-            "cost_per_input_token": 1e-05,
-            "cost_per_output_token": 3e-05
-        },
-        "gpt-4-0125-preview": {
-            "max_context": 128000,
-            "cost_per_input_token": 1e-05,
-            "cost_per_output_token": 3e-05
-        },
-        "gpt-4-turbo-2024-04-09": {
-            "max_context": 128000,
-            "cost_per_input_token": 1e-05,
-            "cost_per_output_token": 3e-05
-        },
-        "gpt-4o-2024-05-13": {
-            "max_context": 128000,
-            "cost_per_input_token": 5e-06,
-            "cost_per_output_token": 15e-06
-        },
-        "gpt-4o-mini-2024-07-18": {
-            "max_context": 128000,
-            "cost_per_input_token": 1.5e-07,
-            "cost_per_output_token": 6e-07
+        "gpt-5.2": {
+          "max_context": 256000,
+          "cost_per_input_token": 7e-06,
+          "cost_per_output_token": 2.1e-05
         }
     },
     "anthropic": {

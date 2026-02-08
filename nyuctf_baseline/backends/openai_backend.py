@@ -37,31 +37,52 @@ class OpenAIBackend(Backend):
     MODELS = list(MODEL_INFO[NAME].keys())
 
     def __init__(self, system_message: str, hint_message: str, tools: dict[str,Tool], model: str = None, api_key: str = None, args: Namespace = None):
+        # Get API key for LiteLLM proxy
         if api_key is None:
-            if KEYS and "OPENAI_API_KEY" in KEYS:
-                api_key = KEYS["OPENAI_API_KEY"].strip()
-            elif "OPENAI_API_KEY" in os.environ:
-                api_key = os.environ["OPENAI_API_KEY"]
-            elif os.path.exists(os.path.expanduser(API_KEY_PATH)):
-                api_key = open(os.path.expanduser(API_KEY_PATH), "r").read().strip()
-            else:
-                raise ValueError(f"No OpenAI API key provided and none found in OPENAI_API_KEY or {API_KEY_PATH}")
-        self.client = OpenAI(api_key=api_key.strip('\''))
+          if KEYS and "LITELLM_API_KEY" in KEYS:
+              api_key = KEYS["LITELLM_API_KEY"].strip()
+          elif "LITELLM_API_KEY" in os.environ:
+              api_key = os.environ["LITELLM_API_KEY"]
+          elif os.path.exists(os.path.expanduser(API_KEY_PATH)):
+              api_key = open(os.path.expanduser(API_KEY_PATH), "r").read().strip()
+          else:
+              raise ValueError(f"No LiteLLM API key provided and none found in LITELLM_API_KEY or {API_KEY_PATH}")
+        
+        # Get LiteLLM proxy base URL
+        litellm_base_url = None
+        if KEYS and "LITELLM_BASE_URL" in KEYS:
+            litellm_base_url = KEYS["LITELLM_BASE_URL"].strip()
+        elif "LITELLM_BASE_URL" in os.environ:
+            litellm_base_url = os.environ["LITELLM_BASE_URL"]
+        else:
+            raise ValueError(f"No LiteLLM base url provided and none found in LITELLM_BASE_URL or {API_KEY_PATH}")
+        
+        # Initialize OpenAI client pointing to LiteLLM proxy
+        self.client = OpenAI(
+            api_key=api_key.strip('\''),
+            base_url=litellm_base_url
+        )
+        
         self.tools = tools
         self.args = args
         self.tool_schemas = [ChatCompletionToolParam(**tool.schema) for tool in tools.values()]
+        
         if model is None:
             self.model = self.MODELS[0]
         else:
             if model not in self.MODELS:
                 raise ValueError(f"Invalid model {model}. Must be one of {self.MODELS}")
             self.model = model
+        
         self.system_message = system_message
         self.hint_message = hint_message
         self.messages += self.get_initial_messages()
         self.in_price = MODEL_INFO[self.NAME][self.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.model].get("cost_per_output_token", 0)
-        self.token_encoding = tiktoken.encoding_for_model(model_name=self.model)
+        if self.model == "gpt-5.2":
+            self.token_encoding = tiktoken.encoding_for_model("gpt-4o")
+        else:
+            self.token_encoding = tiktoken.encoding_for_model(model_name=self.model)
 
     def setup(self):
         status.system_message(self.system_message)

@@ -40,7 +40,10 @@ def parse_keys(key_path=None):
                 if line.startswith("#"):
                     continue
                 line = line.split("=")
-                keys[line[0].strip() + "_API_KEY"] = line[1].strip()
+                if line[0].endswith("URL"):
+                    keys[line[0].strip()] = line[1].strip()
+                else:
+                    keys[line[0].strip() + "_API_KEY"] = line[1].strip()
         return keys
     except FileExistsError:
         return None

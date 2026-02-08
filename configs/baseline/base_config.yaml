@@ -8,7 +8,7 @@ parameter:
   max_rounds: 3
   max_cost: 3
   backend: "openai"
-  model: "gpt-4o-2024-05-13"
+  model: "gpt-5.2"
 
 prompts:
   system: |

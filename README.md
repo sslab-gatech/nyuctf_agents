@@ -22,6 +22,11 @@ Follow these instructions to setup D-CIPHER or the baseline or both:
     1. The setup script will build the corresponding docker image, setup the docker network, and install the python dependencies
     2. You should re-run this setup if the Dockerfile or dependencies are updated
 5. Download the NYU CTF dataset (will take a few minutes): `python3 -m nyuctf.download`
+6. add `key.cfg` as below (do not use " " around the values)
+  ```
+  LITELLM=sk-...
+  LITELLM_BASE_URL=https://...
+  ```
 
 ## Running D-CIPHER
 
