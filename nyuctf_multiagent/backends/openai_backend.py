@@ -55,12 +55,22 @@ class OpenAIBackend(Backend):
             "max_context": 1000000,
             "cost_per_input_token": 2e-06,
             "cost_per_output_token": 8e-06
+        },
+        "gpt-5-nano": {
+            "max_context": 400000,
+            "cost_per_input_token": 0.05e-06,
+            "cost_per_output_token": 0.4e-06
+        },
+        "gpt-5.2": {
+            "max_context": 400000,
+            "cost_per_input_token": 1.75e-06,
+            "cost_per_output_token": 14e-06
         }
     }
 
-    def __init__(self, role, model, tools, api_key, config):
+    def __init__(self, role, model, tools, api_key, config, base_url=None):
         super().__init__(role, model, tools, config)
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.tool_schemas = [self.get_tool_schema(tool) for tool in tools.values()]
 
     @staticmethod

@@ -18,6 +18,7 @@ from nyuctf_baseline.formatters import Formatter
 from nyuctf_baseline.prompts.prompts import PromptManager
 from nyuctf_baseline.environment import CTFEnvironment
 from nyuctf_baseline.conversation import CTFConversation
+from nyuctf_baseline.claudecode_runner import ClaudeCodeRunner
 
 def main():
     parser = argparse.ArgumentParser(
@@ -106,6 +107,12 @@ def main():
         
     environment = CTFEnvironment(challenge, args.container_image, args.network)
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
+
+    if args.model == "claudecode":
+        with ClaudeCodeRunner(environment, challenge, prompt_manager, logfile,
+                              max_rounds=args.max_rounds, max_cost=args.max_cost, args=args) as runner:
+            runner.run()
+        return
 
     if args.backend == "openai":
         backend = OpenAIBackend(

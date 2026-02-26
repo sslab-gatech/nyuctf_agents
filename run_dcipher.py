@@ -87,10 +87,23 @@ if args.executor_token:
     print("args.executor_top_p", args.executor_top_p)
     print("args.executor_temperature", args.executor_temperature)
     #config.autoprompter.top_p = args.top_p
+def get_backend_kwargs(backend_cls, keys):
+    """Get api_key and base_url for a backend, falling back to LITELLM proxy."""
+    backend_key = backend_cls.NAME.upper()
+    if backend_key in keys:
+        return {"api_key": keys[backend_key]}
+    elif "LITELLM" in keys:
+        kwargs = {"api_key": keys["LITELLM"]}
+        if "LITELLM_BASE_URL" in keys:
+            kwargs["base_url"] = keys["LITELLM_BASE_URL"]
+        return kwargs
+    else:
+        raise KeyError(f"No API key found for backend '{backend_key}' and no LITELLM fallback configured in keys.cfg")
+
 autoprompter_backend_cls = MODELS[config.autoprompter.model]
 autoprompter_backend = autoprompter_backend_cls(Role.AUTOPROMPTER, config.autoprompter.model,
                                       environment.get_toolset(config.autoprompter.toolset),
-                                      keys[autoprompter_backend_cls.NAME.upper()], config)
+                                      config=config, **get_backend_kwargs(autoprompter_backend_cls, keys))
 autoprompter_prompter = PromptManager(config_f.parent / config.autoprompter.prompt, challenge, environment)
 autoprompter = AutoPromptAgent(environment, challenge, autoprompter_prompter,
                        autoprompter_backend, max_rounds=config.autoprompter.max_rounds)
@@ -101,7 +114,7 @@ if config.experiment.enable_autoprompt:
 planner_backend_cls = MODELS[config.planner.model]
 planner_backend = planner_backend_cls(Role.PLANNER, config.planner.model,
                                       environment.get_toolset(config.planner.toolset),
-                                      keys[planner_backend_cls.NAME.upper()], config)
+                                      config=config, **get_backend_kwargs(planner_backend_cls, keys))
 planner_prompter = PromptManager(config_f.parent / config.planner.prompt, challenge, environment)
 planner = PlannerAgent(environment, challenge, planner_prompter,
                        planner_backend, max_rounds=config.planner.max_rounds)
@@ -109,7 +122,7 @@ planner = PlannerAgent(environment, challenge, planner_prompter,
 executor_backend_cls = MODELS[config.executor.model]
 executor_backend = executor_backend_cls(Role.EXECUTOR, config.executor.model,
                                         environment.get_toolset(config.executor.toolset),
-                                        keys[executor_backend_cls.NAME.upper()], config)
+                                        config=config, **get_backend_kwargs(executor_backend_cls, keys))
 executor_prompter = PromptManager(config_f.parent / config.executor.prompt, challenge, environment)
 executor = ExecutorAgent(environment, challenge, executor_prompter,
                          executor_backend, max_rounds=config.executor.max_rounds)

@@ -34,12 +34,17 @@ class AnthropicBackend(Backend):
             "max_context": 200000,
             "cost_per_input_token": 3e-06,
             "cost_per_output_token": 15e-06
+        },
+        "claude-opus-4-6": {
+            "max_context": 200000,
+            "cost_per_input_token": 5e-06,
+            "cost_per_output_token": 25e-06
         }
     }
 
-    def __init__(self, role, model, tools, api_key, config):
+    def __init__(self, role, model, tools, api_key, config, base_url=None):
         super().__init__(role, model, tools, config)
-        self.client = Anthropic(api_key=api_key)
+        self.client = Anthropic(api_key=api_key, base_url=base_url)
         self.tool_schemas = [self.get_tool_schema(tool) for tool in tools.values()]
 
     @staticmethod

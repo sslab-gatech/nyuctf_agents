@@ -79,7 +79,8 @@ class OpenAIBackend(Backend):
         self.messages += self.get_initial_messages()
         self.in_price = MODEL_INFO[self.NAME][self.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.model].get("cost_per_output_token", 0)
-        if self.model == "gpt-5.2":
+        repro_list = ["gpt-5.2", "claude-opus-4-6", "claude-3-7-sonnet-20250219"]
+        if self.model in repro_list:
             self.token_encoding = tiktoken.encoding_for_model("gpt-4o")
         else:
             self.token_encoding = tiktoken.encoding_for_model(model_name=self.model)
@@ -103,6 +104,7 @@ class OpenAIBackend(Backend):
 
     @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self) -> ChatCompletionMessage:
+        print(f"[DEBUG] Query length: {sum(len(str(m)) for m in self.messages)} chars, {len(self.messages)} messages")
         return self.client.chat.completions.create(
             model=self.model,
             messages=self.messages,

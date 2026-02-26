@@ -42,7 +42,7 @@ class GeminiBackend(Backend):
         }
     }
 
-    def __init__(self, role, model, tools, api_key, config):
+    def __init__(self, role, model, tools, api_key, config, **kwargs):
         super().__init__(role, model, tools, config)
         genai.configure(api_key=api_key)
         self.model = model

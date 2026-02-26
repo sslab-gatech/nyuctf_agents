@@ -4,6 +4,16 @@
           "max_context": 256000,
           "cost_per_input_token": 7e-06,
           "cost_per_output_token": 2.1e-05
+        },
+        "claude-opus-4-6": {
+          "max_context": 256000,
+          "cost_per_input_token": 7e-06,
+          "cost_per_output_token": 2.1e-05
+        },
+        "claude-3-7-sonnet-20250219": {
+          "max_context": 256000,
+          "cost_per_input_token": 7e-06,
+          "cost_per_output_token": 2.1e-05
         }
     },
     "anthropic": {

@@ -1,7 +1,7 @@
 import json
 from together import Together
 from together.error import InvalidRequestError, RateLimitError
-from together.types.chat_completions import ChatCompletionMessage
+from together.types.chat_completions import ChatCompletionResponse
 
 from ..conversation import MessageRole
 from ..tools import ToolCall, ToolResult
@@ -51,9 +51,9 @@ class TogetherBackend(Backend):
         }
     }
 
-    def __init__(self, role, model, tools, api_key, config):
+    def __init__(self, role, model, tools, api_key, config, base_url=None):
         super().__init__(role, model, tools, config)
-        self.client = Together(api_key=api_key)
+        self.client = Together(api_key=api_key, base_url=base_url)
         if self.get_param(self.role, "strict"):
             self.tool_schemas = [self.get_tool_schema_strict(tool) for tool in tools.values()]
         else:
@@ -99,7 +99,7 @@ class TogetherBackend(Backend):
                 prop["type"] = [prop["type"], "null"]
         return schema
 
-    def _call_model(self, messages) -> ChatCompletionMessage:
+    def _call_model(self, messages) -> ChatCompletionResponse:
         return self.client.chat.completions.create(
             model=self.model,
             messages=messages,
